@@ -71,63 +71,53 @@ footer{border-top:1px solid #3f1c23;margin-top:60px;padding:28px 0 35px;color:va
 </div>
 <script>
 /* ============================================================
-   ★ CHỖ NHẬP LINK ẢNH — CHỈ CẦN SỬA TRONG KHU VỰC NÀY ★
-   - imageUrl : link ảnh sản phẩm (để '' nếu muốn dùng ảnh chữ mặc định)
-   - qr       : link ảnh QR thanh toán cho TỪNG GÓI (tên gói phải khớp với tên gói bên dưới)
+   ★ CÀI ĐẶT — CHỈ CẦN SỬA TRONG KHU VỰC NÀY ★
    ============================================================ */
-const IMAGES = {
-  novax: {
-    imageUrl: 'https://cdn.upanhlaylink.com/i/AwveObud.jpeg',
-    qr: {
-      '1 giờ':   'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=7000&addInfo=novax+cilent+1h&accountName=LE+THANH+DO',
-      '1 ngày':  'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=20000&addInfo=novax+cilent+1+ngay&accountName=LE+THANH+DO',
-      '1 tuần':  'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=90000&addInfo=novax+cilent+1+tuan&accountName=LE+THANH+DO',
-      '1 tháng': 'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=180000&addInfo=novax+cilent+1+thang&accountName=LE+THANH+DO'
-    }
-  },
-  delta: {
-    imageUrl: 'https://cdn.upanhlaylink.com/i/nJxJVBVp.jpeg',
-    qr: {
-      '1 ngày':  'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=25000&addInfo=delta+prx+1+ngay&accountName=LE+THANH+DO',
-      '1 tuần':  'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=90000&addInfo=delta+prx+1+tuan&accountName=LE+THANH+DO',
-      '1 tháng': 'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=180000&addInfo=delta+prx+1+thang&accountName=LE+THANH+DO'
-    }
-  },
-  innova: {
-    imageUrl: 'https://cdn.upanhlaylink.com/i/lF4D1N2p.jpeg',
-    qr: {
-      '1 ngày':  'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=20000&addInfo=innova+cheat+1+ngay&accountName=LE+THANH+DO',
-      '1 tuần':  'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=90000&addInfo=innova+cheat+1+tuan&accountName=LE+THANH+DO',
-      '1 tháng': 'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=180000&addInfo=innova+cheat+1+thang&accountName=LE+THANH+DO'
-    }
-  },
-  novaxproxy: {
-    imageUrl: 'https://cdn.upanhlaylink.com/i/d2FB8Rwf.jpeg',
-    qr: {
-      '1 ngày':  'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=20000&addInfo=novax+prx+1+ngay&accountName=LE+THANH+DO',
-      '1 tuần':  'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=90000&addInfo=novax+prx+1+tuan&accountName=LE+THANH+DO',
-      '1 tháng': 'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=120000&addInfo=novax+prx+1+thang&accountName=LE+THANH+DO',
-      'Vĩnh Viễn': 'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=220000&addInfo=novax+prx+vinh+vien&accountName=LE+THANH+DO',
-      'Vĩnh Viễn có Bảo Hành': 'https://img.vietqr.io/image/970422-0846260109-compact2.png?amount=270000&addInfo=novax+prx+vinh+vien+co+bao+hanh&accountName=LE+THANH+DO'
-    }
-  }
+
+/* 1) Tài khoản ngân hàng nhận tiền (QR được TẠO TỰ ĐỘNG) */
+const BANK = {
+  bin: '970422',            // mã ngân hàng (970422 = MB Bank)
+  account: '0846260109',    // số tài khoản
+  name: 'LE THANH DO'       // chủ tài khoản
 };
-/* QR dự phòng cho gói nào chưa có link riêng (có thể để trống) */
-const DEFAULT_QR_URL = '';
+
+/* 2) Ảnh sản phẩm + nội dung chuyển khoản
+   - imageUrl : link ảnh sản phẩm (để '' nếu muốn dùng ảnh chữ mặc định)
+   - pos      : căn vị trí ảnh trong khung 'X% Y%' (50% 50% = giữa)
+   - memo     : tên sản phẩm ghi trong nội dung chuyển khoản (không dấu)
+                → nội dung sẽ là: memo + thời hạn, vd "novax astra 1 ngay"
+   - qr       : (không bắt buộc) dán link QR riêng cho 1 gói nếu muốn dùng thay QR tự động,
+                vd qr: { '1 ngày': 'https://...' } */
+const IMAGES = {
+  novax:      { imageUrl: 'https://cdn.upanhlaylink.com/i/AwveObud.jpeg', pos: '50% 70%', memo: 'novax client', qr: {} },
+  delta:      { imageUrl: 'https://cdn.upanhlaylink.com/i/nJxJVBVp.jpeg', pos: '50% 50%', memo: 'delta prx',    qr: {} },
+  innova:     { imageUrl: 'https://cdn.upanhlaylink.com/i/lF4D1N2p.jpeg', pos: '50% 50%', memo: 'innova cheat', qr: {} },
+  novaxproxy: { imageUrl: 'https://cdn.upanhlaylink.com/i/FEPQeyaI.jpeg', pos: '50% 50%', memo: 'novax astra',  qr: {} }
+};
 /* ============================================================ */
+
+function vnSlug(t){return String(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
+function buildQrUrl(product,plan){
+  const override=product.qrMap[plan[0]];
+  if(override)return override;
+  const info=(product.memo+' '+vnSlug(plan[0])).trim();
+  return 'https://img.vietqr.io/image/'+BANK.bin+'-'+BANK.account+'-compact2.png'
+    +'?amount='+plan[1]+'&addInfo='+encodeURIComponent(info).replace(/%20/g,'+')
+    +'&accountName='+encodeURIComponent(BANK.name).replace(/%20/g,'+');
+}
 
 const products = [
  {id:'novax',name:'Novax Client + Android + iOS',short:'NOVAX',badge:'SỬ DỤNG MENU TRÊN WED',desc:'Aim Neck, định vị Moco , keo ngược • Hỗ trợ ios và android.',features:['Client','Android','iOS'],plans:[['1 giờ',7000],['1 ngày',20000],['1 tuần',90000],['1 tháng',180000]]},
  {id:'delta',name:'Delta Prx',short:'DELTA PRX',badge:'tải trực tiếp k cần chứng chỉ',desc:'ALL IOS',features:['Key kỹ thuật số','Nhiều thời hạn'],plans:[['1 ngày',25000],['1 tuần',90000],['1 tháng',180000]]},
  {id:'innova',name:'Innova Cheat — iOS',short:'INNOVA',badge:'tải trực tiếp k cần chứng chỉ',desc:'iOS 15.0–15.7.x\niOS 16.0–16.7.x\niOS 17.0–17.7.x\niOS 26.0–26.6.2\niOS 27.0 beta 1: build 24A5355q\niOS 27.0 beta 2: build 24A5370h\niOS 27.0 beta 3 / public beta 1: build 24A5380h\niOS 27.0 beta 4 / public beta 2: build 24A5390f',features:['iOS','Kích hoạt theo gói'],plans:[['1 ngày',20000],['1 tuần',90000],['1 tháng',180000]]},
- {id:'novaxproxy',name:'Novax Proxy — iOS',short:'NOVAX PROXY',badge:'support 1-1 liên hệ admin',desc:'iOS 15.0–15.7.x\niOS 16.0–16.7.x\niOS 17.0–17.7.x\niOS 26.0–26.6.2\niOS 27.0 beta 1: build 24A5355q\niOS 27.0 beta 2: build 24A5370h\niOS 27.0 beta 3 / public beta 1: build 24A5380h\niOS 27.0 beta 4 / public beta 2: build 24A5390f',features:['iOS','Có gói vĩnh viễn'],plans:[['1 ngày',20000],['1 tuần',90000],['1 tháng',120000],['Vĩnh Viễn',220000],['Vĩnh Viễn có Bảo Hành',270000]]}
+ {id:'novaxproxy',name:'NovaX ->ASTRA Phiên bản mới all ios',short:'NOVAX ASTRA',badge:'support 1-1 liên hệ admin',desc:'NovaX ->ASTRA Phiên bản mới all ios',features:['iOS','Có gói vĩnh viễn'],plans:[['1 ngày',20000],['1 tuần',90000],['1 tháng',120000],['Vĩnh Viễn',220000],['Vĩnh Viễn có Bảo Hành',270000]]}
 ];
-products.forEach(p=>{const c=IMAGES[p.id]||{};p.imageUrl=c.imageUrl||'';p.qrMap=c.qr||{}});
+products.forEach(p=>{const c=IMAGES[p.id]||{};p.imageUrl=c.imageUrl||'';p.pos=c.pos||'50% 50%';p.qrMap=c.qr||{};p.memo=c.memo||vnSlug(p.name)});
 let activeProduct=null,activePlan=null;
 const money=n=>new Intl.NumberFormat('vi-VN').format(n)+'đ';
 function renderProducts(){
  document.getElementById('productGrid').innerHTML=products.map(p=>`<article class="product">
- <div class="product-art">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="${esc(p.name)}" style="width:100%;height:100%;object-fit:cover">`:`<div class="art-label">${esc(p.short)}<small>KEY • DIGITAL PRODUCT</small></div>`}</div>
+ <div class="product-art">${p.imageUrl?`<img referrerpolicy="no-referrer" loading="lazy" src="${esc(p.imageUrl)}" alt="${esc(p.name)}" style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;object-position:${esc(p.pos)}" onerror="this.outerHTML='<div class=&quot;art-label&quot;>${esc(p.short)}<small>KEY • DIGITAL PRODUCT</small></div>'">`:`<div class="art-label">${esc(p.short)}<small>KEY • DIGITAL PRODUCT</small></div>`}</div>
  <div class="product-body"><div class="product-top"><h3>${esc(p.name)}</h3><span class="pill">${esc(p.badge)}</span></div>
  <p class="desc">${esc(p.desc)}</p><div class="features">${p.features.map(f=>`<span>${esc(f)}</span>`).join('')}</div>
  <div class="buyrow"><div class="from">Giá từ<strong>${money(Math.min(...p.plans.map(x=>x[1])))}</strong></div><button class="primary" onclick="openProduct('${p.id}')">Chọn gói →</button></div></div></article>`).join('');
@@ -147,9 +137,9 @@ function choosePlan(i){
  document.querySelectorAll('.plan').forEach((el,j)=>el.classList.toggle('selected',i===j));
  document.getElementById('qrTitle').textContent='QR thanh toán · '+money(activePlan[1]);
  const content=document.getElementById('qrContent');
- const qrSrc=activeProduct.qrMap[activePlan[0]]||DEFAULT_QR_URL;
- if(qrSrc){content.innerHTML=`<img class="qrimage" src="${esc(qrSrc)}" alt="Mã QR thanh toán" onerror="this.outerHTML='<div class=&quot;qrplaceholder&quot;>Không tải được ảnh QR.<br>Vui lòng liên hệ shop để được hỗ trợ.</div>'">`;}
- else {content.innerHTML='<div class="qrplaceholder">📷<br><br>Chưa cài link ảnh QR<br><small>Shop chưa cập nhật ảnh QR, vui lòng liên hệ hỗ trợ.</small></div>';}
+ const qrSrc=buildQrUrl(activeProduct,activePlan);
+ if(qrSrc){content.innerHTML=`<img class="qrimage" referrerpolicy="no-referrer" src="${esc(qrSrc)}" alt="Mã QR thanh toán" onerror="this.outerHTML='<div class=&quot;qrplaceholder&quot;>Không tải được ảnh QR.<br>Vui lòng liên hệ shop để được hỗ trợ.</div>'">`;}
+ else {content.innerHTML='<div class="qrplaceholder">📷<br><br>Chưa tạo được QR<br><small>Shop chưa cập nhật ảnh QR, vui lòng liên hệ hỗ trợ.</small></div>';}
  document.getElementById('qrNote').textContent='Sản phẩm: '+activeProduct.name+' · Gói: '+activePlan[0]+' · Số tiền: '+money(activePlan[1])+'. Vui lòng xác nhận thông tin trước khi chuyển khoản.';
  document.getElementById('qrbox').classList.add('show');
 }
